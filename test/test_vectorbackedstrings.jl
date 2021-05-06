@@ -1,5 +1,5 @@
 using Test
-using TextParse: VectorBackedUTF8String
+using TextParse:VectorBackedUTF8String
 
 @testset "VectorBackedStrings" begin
     
