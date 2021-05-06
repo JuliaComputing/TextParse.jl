@@ -1,17 +1,17 @@
 using TextParse
 
 import TextParse: tryparsenext, unwrap, failedat, AbstractToken, LocalOpts
-import CodecZlib: GzipCompressorStream
+import CodecZlib:GzipCompressorStream
 using Test
 using Dates, Random
 using Nullables
 
 # dumb way to compare two AbstractTokens
-Base.:(==)(a::T, b::T) where {T<:AbstractToken} = string(a) == string(b)
+Base.:(==)(a::T, b::T) where {T <: AbstractToken} = string(a) == string(b)
 
 @testset "TextParse" begin
 
-import TextParse: eatnewlines
+import TextParse:eatnewlines
 @testset "eatnewlines" begin
     @test eatnewlines("\n\r\nx") == (4, 2)
     @test eatnewlines("x\n\r\nx") == (1, 0)
@@ -21,7 +21,7 @@ import TextParse: eatnewlines
     @test eatnewlines(SubString("x\n\r\nx", 1)) == (1, 0)
 end
 
-import TextParse: eatwhitespaces
+import TextParse:eatwhitespaces
 @testset "eatwhitespaces" begin
     @test eatwhitespaces("  x") == 3
     @test eatwhitespaces("x  x") == 1
@@ -31,7 +31,7 @@ import TextParse: eatwhitespaces
     @test eatwhitespaces(SubString("x  x", 1)) == 1
 end
 
-import TextParse: getlineend
+import TextParse:getlineend
 @testset "getlineend" begin
     @test getlineend("\nx") == 0
     @test getlineend("x\nx") == 1
@@ -40,7 +40,7 @@ import TextParse: getlineend
     @test getlineend("xβ\nyz") == 2
 end
 
-import TextParse: getrowend
+import TextParse:getrowend
 @testset "getrowend" begin
     opts = LocalOpts(',', false, '"', '"', true, true)
 
@@ -69,36 +69,36 @@ import TextParse: fromtype, Percentage
     @test tryparsenext(fromtype(Float64), "12", 1, 2) |> unwrap == (12.0, 3)
     @test tryparsenext(fromtype(Float64), ".1", 1, 2) |> unwrap == (0.1, 3)
     @test tryparsenext(fromtype(Float64), "1.1", 1, 3) |> unwrap == (1.1, 4)
-    @test tryparsenext(fromtype(Float32), "1.", 1, 2) |> unwrap == (1f0,3)
-    @test tryparsenext(fromtype(Float64), "-1.1", 1, 4) |> unwrap == (-1.1,5)
-    @test tryparsenext(fromtype(Float64), "-1.0e-12", 1, 8) |> unwrap == (-1.0e-12,9)
-    @test tryparsenext(fromtype(Float64), "-1e-12") |> unwrap == (-1.0e-12,7)
-    @test tryparsenext(fromtype(Float64), "-1.0E-12", 1, 8) |> unwrap == (-1.0e-12,9)
-    @test tryparsenext(fromtype(Float64), "5.e-3", 1, 5) |> unwrap == (5.0e-3,6) # 32
-    @test tryparsenext(Percentage(), "33%") |> unwrap == (.33,4)
-    @test tryparsenext(Percentage(), "3.3%") |> unwrap == (.033,5)
+    @test tryparsenext(fromtype(Float32), "1.", 1, 2) |> unwrap == (1f0, 3)
+    @test tryparsenext(fromtype(Float64), "-1.1", 1, 4) |> unwrap == (-1.1, 5)
+    @test tryparsenext(fromtype(Float64), "-1.0e-12", 1, 8) |> unwrap == (-1.0e-12, 9)
+    @test tryparsenext(fromtype(Float64), "-1e-12") |> unwrap == (-1.0e-12, 7)
+    @test tryparsenext(fromtype(Float64), "-1.0E-12", 1, 8) |> unwrap == (-1.0e-12, 9)
+    @test tryparsenext(fromtype(Float64), "5.e-3", 1, 5) |> unwrap == (5.0e-3, 6) # 32
+    @test tryparsenext(Percentage(), "33%") |> unwrap == (.33, 4)
+    @test tryparsenext(Percentage(), "3.3%") |> unwrap == (.033, 5)
 
     # Also test AbstractString variant
     @test tryparsenext(fromtype(Float64), SubString("1", 1), 1, 1) |> unwrap == (1.0, 2)
     @test tryparsenext(fromtype(Float64), SubString("12", 1), 1, 2) |> unwrap == (12.0, 3)
     @test tryparsenext(fromtype(Float64), SubString(".1", 1), 1, 2) |> unwrap == (0.1, 3)
     @test tryparsenext(fromtype(Float64), SubString("1.1", 1), 1, 3) |> unwrap == (1.1, 4)
-    @test tryparsenext(fromtype(Float32), SubString("1.", 1), 1, 2) |> unwrap == (1f0,3)
-    @test tryparsenext(fromtype(Float64), SubString("-1.1", 1), 1, 4) |> unwrap == (-1.1,5)
-    @test tryparsenext(fromtype(Float64), SubString("-1.0e-12", 1), 1, 8) |> unwrap == (-1.0e-12,9)
-    @test tryparsenext(fromtype(Float64), SubString("-1e-12", 1)) |> unwrap == (-1.0e-12,7)
-    @test tryparsenext(fromtype(Float64), SubString("-1.0E-12", 1), 1, 8) |> unwrap == (-1.0e-12,9)
-    @test tryparsenext(fromtype(Float64), SubString("5.e-3", 1), 1, 5) |> unwrap == (5.0e-3,6) # 32
-    @test tryparsenext(Percentage(), SubString("33%", 1)) |> unwrap == (.33,4)
-    @test tryparsenext(Percentage(), SubString("3.3%", 1)) |> unwrap == (.033,5)
+    @test tryparsenext(fromtype(Float32), SubString("1.", 1), 1, 2) |> unwrap == (1f0, 3)
+    @test tryparsenext(fromtype(Float64), SubString("-1.1", 1), 1, 4) |> unwrap == (-1.1, 5)
+    @test tryparsenext(fromtype(Float64), SubString("-1.0e-12", 1), 1, 8) |> unwrap == (-1.0e-12, 9)
+    @test tryparsenext(fromtype(Float64), SubString("-1e-12", 1)) |> unwrap == (-1.0e-12, 7)
+    @test tryparsenext(fromtype(Float64), SubString("-1.0E-12", 1), 1, 8) |> unwrap == (-1.0e-12, 9)
+    @test tryparsenext(fromtype(Float64), SubString("5.e-3", 1), 1, 5) |> unwrap == (5.0e-3, 6) # 32
+    @test tryparsenext(Percentage(), SubString("33%", 1)) |> unwrap == (.33, 4)
+    @test tryparsenext(Percentage(), SubString("3.3%", 1)) |> unwrap == (.033, 5)
 
     rng = MersenneTwister(0)
     floats = rand(1_000)
-    parsed_floats = map(i->get(tryparsenext(fromtype(Float64), i, 1, lastindex(i))[1]), string.(floats))
+    parsed_floats = map(i -> get(tryparsenext(fromtype(Float64), i, 1, lastindex(i))[1]), string.(floats))
     @test parsed_floats == floats
 
     # Also test AbstractString variant
-    parsed_floats = map(i->get(tryparsenext(fromtype(Float64), SubString(i,1), 1, lastindex(i))[1]), string.(floats))
+    parsed_floats = map(i -> get(tryparsenext(fromtype(Float64), SubString(i, 1), 1, lastindex(i))[1]), string.(floats))
     @test parsed_floats == floats
 end
 
@@ -129,7 +129,7 @@ end
     @test tryparsenext(fromtype(UInt128), "340282366920938463463374607431768211456", 1, 39) |> failedat == 1
 end
 
-import TextParse: StringToken
+import TextParse:StringToken
 using WeakRefStrings
 @testset "String parsing" begin
 
@@ -157,12 +157,12 @@ using WeakRefStrings
 
     opts = LocalOpts(',', false, '"', '\\', false, false)
     str =  "Owner 2 ”Vicepresident\"\""
-    @test tryparsenext(Quoted(String, '"', '\\'), str, opts) |> unwrap == (str, lastindex(str)+1)
+    @test tryparsenext(Quoted(String, '"', '\\'), str, opts) |> unwrap == (str, lastindex(str) + 1)
     str1 =  "\"Owner 2 ”Vicepresident\"\"\""
-    @test tryparsenext(Quoted(String, '"', '"'), str1) |> unwrap == ("Owner 2 ”Vicepresident\"", lastindex(str1)+1)
+    @test tryparsenext(Quoted(String, '"', '"'), str1) |> unwrap == ("Owner 2 ”Vicepresident\"", lastindex(str1) + 1)
     @test tryparsenext(Quoted(String, '"', '"'), "\"\tx\"") |> unwrap == ("\tx", 5)
     opts = LocalOpts(',', true, '"', '\\', false, false)
-    @test tryparsenext(StringToken(String), "x y",1,3, opts) |> unwrap == ("x", 2)
+    @test tryparsenext(StringToken(String), "x y", 1, 3, opts) |> unwrap == ("x", 2)
 
     @test tryparsenext(StringToken(String), "abcβ") |> unwrap == ("abcβ", 6)
 end
@@ -177,13 +177,13 @@ import TextParse: Quoted, NAToken, Unknown
     @test tryparsenext(Quoted(String, '"', '"'), "\"x\"") |> unwrap == ("x", 4)
     @test tryparsenext(Quoted(String, '"', '"', includequotes=true), "\"x\"") |> unwrap == ("\"x\"", 4)
     str2 =  "\"\"\"\""
-    @test tryparsenext(Quoted(String, '"', '"'), str2, opts) |> unwrap == ("\"", lastindex(str2)+1)
+    @test tryparsenext(Quoted(String, '"', '"'), str2, opts) |> unwrap == ("\"", lastindex(str2) + 1)
     str1 =  "\"x”y\"\"\""
     @test tryparsenext(Quoted(StringToken(String), '"', '"', required=true), "x\"y\"") |> failedat == 1
 
-    @test tryparsenext(Quoted(String, '"', '"'), str1) |> unwrap == ("x”y\"", lastindex(str1)+1)
+    @test tryparsenext(Quoted(String, '"', '"'), str1) |> unwrap == ("x”y\"", lastindex(str1) + 1)
     @test tryparsenext(Quoted(StringToken(String), '"', '\\'), "\"x\\\"yz\"") |> unwrap == ("x\"yz", 8)
-    @test tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "1") |> unwrap == (1,2)
+    @test tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "1") |> unwrap == (1, 2)
 
     t = tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "") |> unwrap
     @test ismissing(t[1])
@@ -199,8 +199,8 @@ import TextParse: Quoted, NAToken, Unknown
     @test tryparsenext(Quoted(StringToken(String), '"', '"'), "x\"abc\"") |> unwrap == ("x\"abc\"", 7)
     @test tryparsenext(Quoted(StringToken(String), '"', '"'), "\"a\nbc\"") |> unwrap == ("a\nbc", 7)
     @test tryparsenext(Quoted(StringToken(String), '"', '"', required=true), "x\"abc\"") |> failedat == 1
-    @test tryparsenext(Quoted(fromtype(Int), '"', '"'), "21") |> unwrap == (21,3)
-    @test tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "21") |> unwrap == (21,3)
+    @test tryparsenext(Quoted(fromtype(Int), '"', '"'), "21") |> unwrap == (21, 3)
+    @test tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "21") |> unwrap == (21, 3)
 
     t = tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "") |> unwrap
     @test ismissing(t[1])
@@ -212,13 +212,13 @@ import TextParse: Quoted, NAToken, Unknown
 
     @test tryparsenext(Quoted(NAToken(fromtype(Int)), '"', '"'), "\"21\"") |> unwrap == (21, 5)
     @test ismissing(tryparsenext(Quoted(NAToken(Unknown()), '"', '"'), " ") |> unwrap |> first)
-    opts = LocalOpts(',', false,'"', '"', false, false)
+    opts = LocalOpts(',', false, '"', '"', false, false)
     @test tryparsenext(Quoted(StringToken(String), '"', '"'), "x,", opts) |> unwrap == ("x", 2)
 
     # stripspaces
     @test tryparsenext(Quoted(Percentage(), '"', '"'), "\" 10%\",", opts) |> unwrap == (0.1, 7)
     @test tryparsenext(Quoted(String, '"', '"'), "\" 10%\",", opts) |> unwrap == (" 10%", 7)
-    opts = LocalOpts(',', true,'"', '"', false, false)
+    opts = LocalOpts(',', true, '"', '"', false, false)
     @test tryparsenext(Quoted(StringToken(String), '"', '"'), "\"x y\" y", opts) |> unwrap == ("x y", 6)
     @test tryparsenext(Quoted(StringToken(String), '"', '"'), "x y", opts) |> unwrap == ("x", 2)
 end
@@ -236,93 +236,93 @@ end
     @test tryparsenext(NAToken(fromtype(Float64)), "1.212,") |> unwrap == (1.212, 6)
 end
 
-import TextParse: Field
+import TextParse:Field
 @testset "Field parsing" begin
     f = fromtype(Int)
     @test tryparsenext(Field(f), "12,3") |> unwrap == (12, 4)
     @test tryparsenext(Field(f), "12 ,3") |> unwrap == (12, 5)
     @test tryparsenext(Field(f), " 12 ,3") |> unwrap == (12, 6)
-    opts = LocalOpts('\t', false, 'x','x',true,false)
+    opts = LocalOpts('\t', false, 'x', 'x', true, false)
     @test tryparsenext(Field(f), "12\t3", 1, 4, opts) |> unwrap == (12, 4)
     @test tryparsenext(Field(f), "12 \t3", 1, 5, opts) |> unwrap == (12, 5)
     @test tryparsenext(Field(f), " 12 \t 3", 1, 6, opts) |> unwrap == (12, 6)
-    opts = LocalOpts('\t', true, 'x','x',true,false)
+    opts = LocalOpts('\t', true, 'x', 'x', true, false)
     @test tryparsenext(Field(f), " 12 3", 1, 5, opts) |> unwrap == (12, 5)
-    @test tryparsenext(Field(f, ignore_end_whitespace=false), " 12 \t 3", 1,6, opts) |> unwrap == (12, 5)
-    opts = LocalOpts(' ', false, 'x','x',false, false)
-    @test tryparsenext(Field(f,ignore_end_whitespace=false), "12 3", 1,4,opts) |> unwrap == (12, 4)
+    @test tryparsenext(Field(f, ignore_end_whitespace=false), " 12 \t 3", 1, 6, opts) |> unwrap == (12, 5)
+    opts = LocalOpts(' ', false, 'x', 'x', false, false)
+    @test tryparsenext(Field(f, ignore_end_whitespace=false), "12 3", 1, 4, opts) |> unwrap == (12, 4)
 #    @test tryparsenext(Field(f,ignore_end_whitespace=false), "12 \t3", 1,5,opts) |> failedat == 3
-    opts = LocalOpts('\t', false, 'x','x',false, false)
-    @test tryparsenext(Field(f,ignore_end_whitespace=false), " 12\t 3", 1, 6, opts) |> unwrap == (12,5)
-    @test tryparsenext(Field(f,eoldelim=true), " 12\n", 1, 4, opts) |> unwrap == (12,5)
-    @test tryparsenext(Field(f,eoldelim=true), " 12\n\r\n", 1, 5, opts) |> unwrap == (12,6)
-    @test tryparsenext(Field(f,eoldelim=true), " 12") |> unwrap == (12,4)
+    opts = LocalOpts('\t', false, 'x', 'x', false, false)
+    @test tryparsenext(Field(f, ignore_end_whitespace=false), " 12\t 3", 1, 6, opts) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f, eoldelim=true), " 12\n", 1, 4, opts) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f, eoldelim=true), " 12\n\r\n", 1, 5, opts) |> unwrap == (12, 6)
+    @test tryparsenext(Field(f, eoldelim=true), " 12") |> unwrap == (12, 4)
 
     # Also test AbstractString variant
-    @test tryparsenext(Field(f), SubString("12,3",1)) |> unwrap == (12, 4)
-    @test tryparsenext(Field(f), SubString("12 ,3",1)) |> unwrap == (12, 5)
-    @test tryparsenext(Field(f), SubString(" 12 ,3",1)) |> unwrap == (12, 6)
-    opts = LocalOpts('\t', false, 'x','x',true,false)
-    @test tryparsenext(Field(f), SubString("12\t3",1), 1, 4, opts) |> unwrap == (12, 4)
-    @test tryparsenext(Field(f), SubString("12 \t3",1), 1, 5, opts) |> unwrap == (12, 5)
-    @test tryparsenext(Field(f), SubString(" 12 \t 3",1), 1, 6, opts) |> unwrap == (12, 6)
-    opts = LocalOpts('\t', true, 'x','x',true,false)
-    @test tryparsenext(Field(f), SubString(" 12 3",1), 1, 5, opts) |> unwrap == (12, 5)
-    @test tryparsenext(Field(f, ignore_end_whitespace=false), SubString(" 12 \t 3",1), 1,6, opts) |> unwrap == (12, 5)
-    opts = LocalOpts(' ', false, 'x','x',false, false)
-    @test tryparsenext(Field(f,ignore_end_whitespace=false), SubString("12 3",1), 1,4,opts) |> unwrap == (12, 4)
+    @test tryparsenext(Field(f), SubString("12,3", 1)) |> unwrap == (12, 4)
+    @test tryparsenext(Field(f), SubString("12 ,3", 1)) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f), SubString(" 12 ,3", 1)) |> unwrap == (12, 6)
+    opts = LocalOpts('\t', false, 'x', 'x', true, false)
+    @test tryparsenext(Field(f), SubString("12\t3", 1), 1, 4, opts) |> unwrap == (12, 4)
+    @test tryparsenext(Field(f), SubString("12 \t3", 1), 1, 5, opts) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f), SubString(" 12 \t 3", 1), 1, 6, opts) |> unwrap == (12, 6)
+    opts = LocalOpts('\t', true, 'x', 'x', true, false)
+    @test tryparsenext(Field(f), SubString(" 12 3", 1), 1, 5, opts) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f, ignore_end_whitespace=false), SubString(" 12 \t 3", 1), 1, 6, opts) |> unwrap == (12, 5)
+    opts = LocalOpts(' ', false, 'x', 'x', false, false)
+    @test tryparsenext(Field(f, ignore_end_whitespace=false), SubString("12 3", 1), 1, 4, opts) |> unwrap == (12, 4)
 #    @test tryparsenext(Field(f,ignore_end_whitespace=false), "12 \t3", 1,5,opts) |> failedat == 3
-    opts = LocalOpts('\t', false, 'x','x',false, false)
-    @test tryparsenext(Field(f,ignore_end_whitespace=false), SubString(" 12\t 3",1), 1, 6, opts) |> unwrap == (12,5)
-    @test tryparsenext(Field(f,eoldelim=true), SubString(" 12\n",1), 1, 4, opts) |> unwrap == (12,5)
-    @test tryparsenext(Field(f,eoldelim=true), SubString(" 12\n\r\n",1), 1, 5, opts) |> unwrap == (12,6)
-    @test tryparsenext(Field(f,eoldelim=true), SubString(" 12",1)) |> unwrap == (12,4)
+    opts = LocalOpts('\t', false, 'x', 'x', false, false)
+    @test tryparsenext(Field(f, ignore_end_whitespace=false), SubString(" 12\t 3", 1), 1, 6, opts) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f, eoldelim=true), SubString(" 12\n", 1), 1, 4, opts) |> unwrap == (12, 5)
+    @test tryparsenext(Field(f, eoldelim=true), SubString(" 12\n\r\n", 1), 1, 5, opts) |> unwrap == (12, 6)
+    @test tryparsenext(Field(f, eoldelim=true), SubString(" 12", 1)) |> unwrap == (12, 4)
 end
 
 
-import TextParse: Record
+import TextParse:Record
 @testset "Record parsing" begin
-    r=Record((Field(fromtype(Int)), Field(fromtype(UInt)), Field(fromtype(Float64))))
+    r = Record((Field(fromtype(Int)), Field(fromtype(UInt)), Field(fromtype(Float64))))
     @test tryparsenext(r, "12,21,21,", 1, 9) |> unwrap == ((12, UInt(21), 21.0), 10)
     @test tryparsenext(r, "12,21.0,21,", 1, 9) |> failedat == 6
     s = "12   ,  21,  21.23,"
-    @test tryparsenext(r, s, 1, length(s)) |> unwrap == ((12, UInt(21), 21.23), length(s)+1)
+    @test tryparsenext(r, s, 1, length(s)) |> unwrap == ((12, UInt(21), 21.23), length(s) + 1)
 end
 
 
-import TextParse: UseOne
+import TextParse:UseOne
 @testset "UseOne" begin
     f = UseOne((Field(fromtype(Int)), Field(fromtype(Float64)), Field(fromtype(Int), eoldelim=true)), 3)
     @test tryparsenext(f, "1, 33.21, 45", 1, 12) |> unwrap == (45, 13)
 end
 
-import TextParse: Repeated
+import TextParse:Repeated
 @testset "Repeated" begin
     f = Repeated(Field(fromtype(Int)), 3)
-    @test tryparsenext(f, "1, 33, 45,", 1, 12) |> unwrap == ((1,33,45), 11)
+    @test tryparsenext(f, "1, 33, 45,", 1, 12) |> unwrap == ((1, 33, 45), 11)
 
     inp = join(map(string, [1:45;]), ", ") * ", "
     out = ntuple(identity, 45)
     f2 = Repeated(Field(fromtype(Int)), 45)
     @test tryparsenext(f2, inp, 1, length(inp)) |> unwrap == (out, length(inp))
-    #@benchmark tryparsenext($f2, $inp, 1, length($inp))
+    # @benchmark tryparsenext($f2, $inp, 1, length($inp))
 end
 
 
-import TextParse: quotedsplit
+import TextParse:quotedsplit
 @testset "quotedsplit" begin
     opts = LocalOpts(',', false, '"', '\\', false, false)
     @test quotedsplit("x", opts, false, 1, 1) == ["x"]
     @test quotedsplit("x, y", opts, false, 1, 4) == ["x", "y"]
-    @test quotedsplit("\"x\", \"y\"", opts,false, 1, 8) == ["x", "y"]
-    @test quotedsplit("\"x\", \"y\"", opts,true, 1, 8) == ["\"x\"", "\"y\""]
+    @test quotedsplit("\"x\", \"y\"", opts, false, 1, 8) == ["x", "y"]
+    @test quotedsplit("\"x\", \"y\"", opts, true, 1, 8) == ["\"x\"", "\"y\""]
     str = """x\nx,"s,", "\\",x" """
     @test quotedsplit(str, opts, false, 3, length(str)) == ["x", "s,", "\",x"]
     @test quotedsplit(",", opts, true, 1, 1) == ["", ""]
     @test quotedsplit(", ", opts, false, 1, 2) == ["", ""]
     str = "1, \"x \"\"y\"\" z\", 1"
-    qopts = LocalOpts(',', false,'"', '"', false, false)
-    @test quotedsplit(str, qopts,true, 1, lastindex(str)) == ["1", "\"x \"y\" z\"", "1"]
+    qopts = LocalOpts(',', false, '"', '"', false, false)
+    @test quotedsplit(str, qopts, true, 1, lastindex(str)) == ["1", "\"x \"y\" z\"", "1"]
 end
 
 import TextParse: LocalOpts, readcolnames
@@ -341,8 +341,8 @@ import TextParse: LocalOpts, readcolnames
     """
     opts = LocalOpts(',', false, '"', '\\', false, false)
     @test readcolnames(str1, opts, 1, String[]) == (["a", "b", "c d", "e"], 13)
-    @test readcolnames("\n\r$str1", opts, 3, Dict(3=>"x")) == (["a", "b", "x", "e"], 15)
-    #@test readcolnames("$str2", opts, 3, Dict(3=>"x")) == (["a", "b", "x", "d\" e"], 24)
+    @test readcolnames("\n\r$str1", opts, 3, Dict(3 => "x")) == (["a", "b", "x", "e"], 15)
+    # @test readcolnames("$str2", opts, 3, Dict(3=>"x")) == (["a", "b", "x", "d\" e"], 24)
 end
 
 import TextParse: guesstoken, Unknown, Numeric, DateTimeToken, StrRange
@@ -397,7 +397,7 @@ import TextParse: guesstoken, Unknown, Numeric, DateTimeToken, StrRange
     @test guesstoken("2016-01-01 10:10:10.10", opts, false, Quoted(NAToken(Unknown()), opts.quotechar, opts.escapechar)) == Quoted(NAToken(tok), opts.quotechar, opts.escapechar)
 end
 
-import TextParse: guesscolparsers
+import TextParse:guesscolparsers
 @testset "CSV type detect" begin
     str1 = """
      a, b,c d, e
@@ -419,18 +419,18 @@ import TextParse: guesscolparsers
 end
 
 
-import TextParse: getlineat
+import TextParse:getlineat
 @testset "getlineat" begin
     str = "abc\ndefg"
-    @test str[getlineat(str,1)] == "abc\n"
-    @test str[getlineat(str,4)] == "abc\n"
-    @test str[getlineat(str,5)] == "defg"
-    @test str[getlineat(str,lastindex(str))] == "defg"
+    @test str[getlineat(str, 1)] == "abc\n"
+    @test str[getlineat(str, 4)] == "abc\n"
+    @test str[getlineat(str, 5)] == "defg"
+    @test str[getlineat(str, lastindex(str))] == "defg"
     @test getlineat("x", 5) == 1:1
 end
 
 
-import TextParse: guessdateformat
+import TextParse:guessdateformat
 @testset "date detection" begin
     @test guessdateformat("2016") |> typeof == DateTimeToken(Date, dateformat"yyyy-mm-dd") |> typeof
     @test guessdateformat("09/09/2016") |> typeof == DateTimeToken(Date, dateformat"mm/dd/yyyy") |> typeof
@@ -441,14 +441,14 @@ end
     tok = DateTimeToken(DateTime, dateformat"yyyy-mm-dd HH:MM:SS")
     opts = LocalOpts('y', false, '"', '\\', false, false)
     str = "1970-02-02 02:20:20"
-    @test tryparsenext(tok, str, 1, length(str), opts) |> unwrap == (DateTime("1970-02-02T02:20:20"), length(str)+1)
-    @test tryparsenext(tok, str*"x", 1, length(str)+1, opts) |> unwrap == (DateTime("1970-02-02T02:20:20"), length(str)+1)
-    @test tryparsenext(tok, str[1:end-3]*"x", 1, length(str)-2, opts) |> failedat == length(str)-2
-    @test tryparsenext(tok, str[1:end-3]*"y", 1, length(str)-2, opts) |> unwrap == (DateTime("1970-02-02T02:20"), length(str)-2)
+    @test tryparsenext(tok, str, 1, length(str), opts) |> unwrap == (DateTime("1970-02-02T02:20:20"), length(str) + 1)
+    @test tryparsenext(tok, str * "x", 1, length(str) + 1, opts) |> unwrap == (DateTime("1970-02-02T02:20:20"), length(str) + 1)
+    @test tryparsenext(tok, str[1:end - 3] * "x", 1, length(str) - 2, opts) |> failedat == length(str) - 2
+    @test tryparsenext(tok, str[1:end - 3] * "y", 1, length(str) - 2, opts) |> unwrap == (DateTime("1970-02-02T02:20"), length(str) - 2)
 end
 
 
-import TextParse: _csvread
+import TextParse:_csvread
 @testset "csvread" begin
 
     str1 = """
@@ -466,11 +466,11 @@ import TextParse: _csvread
               ["a", "b", "c d", "e"])
     @test isequal(_csvread(str1, ','), data)
     coltype_test1 = _csvread(str1,
-                            colparsers=Dict("b"=>Union{Missing, Float64},
-                                          "e"=>Union{Missing,Float64}))
+                            colparsers=Dict("b" => Union{Missing,Float64},
+                                          "e" => Union{Missing,Float64}))
     coltype_test2 = _csvread(str1,
-                            colparsers=Dict(2=>Union{Missing, Float64},
-                                          4=>Union{Missing,Float64}))
+                            colparsers=Dict(2 => Union{Missing,Float64},
+                                          4 => Union{Missing,Float64}))
 
     str2 = """
     x,1,1,1
@@ -480,14 +480,14 @@ import TextParse: _csvread
     x,1.0,,1
     """
     coltype_test3 = _csvread(str2, header_exists=false,
-                            colparsers=Dict(2=>Union{Missing,Float64},
-                                          4=>Union{Missing,Float64}))
-    @test eltype(coltype_test1[1][2]) == Union{Missing, Float64}
-    @test eltype(coltype_test1[1][4]) == Union{Missing, Float64}
-    @test eltype(coltype_test2[1][2]) == Union{Missing, Float64}
-    @test eltype(coltype_test2[1][4]) == Union{Missing, Float64}
-    @test eltype(coltype_test3[1][2]) == Union{Missing, Float64}
-    @test eltype(coltype_test3[1][4]) == Union{Missing, Float64}
+                            colparsers=Dict(2 => Union{Missing,Float64},
+                                          4 => Union{Missing,Float64}))
+    @test eltype(coltype_test1[1][2]) == Union{Missing,Float64}
+    @test eltype(coltype_test1[1][4]) == Union{Missing,Float64}
+    @test eltype(coltype_test2[1][2]) == Union{Missing,Float64}
+    @test eltype(coltype_test2[1][4]) == Union{Missing,Float64}
+    @test eltype(coltype_test3[1][2]) == Union{Missing,Float64}
+    @test eltype(coltype_test3[1][4]) == Union{Missing,Float64}
 
     @test isequal(data, _csvread(str1, type_detect_rows=1))
     @test isequal(data, _csvread(str1, type_detect_rows=2))
@@ -501,7 +501,7 @@ import TextParse: _csvread
     x,1,1,1
     """
     coltype_test4 = _csvread(str3, type_detect_rows=1)
-    @test isequal(((["1","x"], [1,1], [1,1], [1,1]),["a","b","c d","e"]), coltype_test4)
+    @test isequal(((["1","x"], [1,1], [1,1], [1,1]), ["a","b","c d","e"]), coltype_test4)
 
     str4 = """
      a, b,c d, e
@@ -510,7 +510,7 @@ import TextParse: _csvread
     y,2,3,8
     """
     coltype_test4 = _csvread(str4, type_detect_rows=1)
-    @test isequal(((["1","2", "y"], [1,1,2], ["01","x", "3"], [1,1,8]),["a","b","c d","e"]), coltype_test4)
+    @test isequal(((["1","2", "y"], [1,1,2], ["01","x", "3"], [1,1,8]), ["a","b","c d","e"]), coltype_test4)
 
     str5 = """
      a, b,c d, e
@@ -519,14 +519,14 @@ import TextParse: _csvread
     y,2,3,8
     """
     coltype_test4 = _csvread(str5, type_detect_rows=1)
-    @test isequal(((["1","02", "y"], [1,1,2], [4,3,3], ["01.1","x","8"]),["a","b","c d","e"]), coltype_test4)
+    @test isequal(((["1","02", "y"], [1,1,2], [4,3,3], ["01.1","x","8"]), ["a","b","c d","e"]), coltype_test4)
 
     # test growing of columns if prediction is too low
     @test _csvread("x,y\nabcd, defg\n,\n,\n", type_detect_rows=1) ==
         ((String["abcd", "", ""], String["defg", "", ""]), String["x", "y"])
 
     # #19
-    s="""
+    s = """
     x,y,z
     1,1,x
     "2",2,x
@@ -539,9 +539,9 @@ import TextParse: _csvread
     @test _csvread(s, type_detect_rows=1, escapechar='"', stringarraytype=Array) == res
     @test _csvread(s, type_detect_rows=2, escapechar='"', stringarraytype=Array) == res
 
-    @test csvread(IOBuffer("x\n1")) == (([1],),["x"])
+    @test csvread(IOBuffer("x\n1")) == (([1],), ["x"])
 
-    @test _csvread("x\n1\n") == (([1],),["x"])
+    @test _csvread("x\n1\n") == (([1],), ["x"])
 
     # test detection of newlines in fields
     s = """x, y
@@ -560,25 +560,25 @@ import TextParse: _csvread
     4,*
     """
     nullness = ([false, true, false], [false, false, true])
-    @test map(x->map(ismissing, x), first(_csvread(s, nastrings=["?","*"]))) == nullness
-    @test map(x->map(ismissing, x), first(_csvread(s, nastrings=["?","*"], type_detect_rows=1))) == nullness
+    @test map(x -> map(ismissing, x), first(_csvread(s, nastrings=["?","*"]))) == nullness
+    @test map(x -> map(ismissing, x), first(_csvread(s, nastrings=["?","*"], type_detect_rows=1))) == nullness
 
     @test isequal(csvread(["data/a.csv", "data/b.csv"]),
                   (([1.0, 2.0, 1.0, 2.0, 3.0], [2, 2, missing, missing, missing],
                     [missing, missing, missing, 2, 1]), String["x", "y", "z"], [2, 3]))
-    @test isequal(csvread(["data/a.csv", "data/b.csv"], samecols=[("y","z")]),
+    @test isequal(csvread(["data/a.csv", "data/b.csv"], samecols=[("y", "z")]),
                   (([1.0, 2.0, 1.0, 2.0, 3.0], [2, 2, missing, 2, 1]), String["x", "y"], [2,3]))
 
     # shouldn't fail because y doesn't exist
-    @test _csvread("x\n1", colparsers=Dict("y"=>String)) == (([1],), ["x"])
+    @test _csvread("x\n1", colparsers=Dict("y" => String)) == (([1],), ["x"])
 
     # Don't try to guess type if it's provided by user. Issue JuliaDB.jl#109
-    s="""
+    s = """
     time,value
     "2017-11-09T07:00:07.391101180",0
     """
     @test _csvread(s) == ((String["2017-11-09T07:00:07.391101180"], [0]), String["time", "value"])
-    @test _csvread(s, colparsers=Dict(:time=>String)) == ((String["2017-11-09T07:00:07.391101180"], [0]), String["time", "value"])
+    @test _csvread(s, colparsers=Dict(:time => String)) == ((String["2017-11-09T07:00:07.391101180"], [0]), String["time", "value"])
 
     @test _csvread("") == ((), String[])
 
@@ -586,7 +586,7 @@ import TextParse: _csvread
                    a""b"", 1""", stringarraytype=Array) == ((["a\"\"b\"\""], [1]), ["x\"\"y\"\"", "z"])
 end
 
-import TextParse: _csvread
+import TextParse:_csvread
 @testset "commentchar" begin
 
     # First line a comment.
@@ -681,7 +681,7 @@ end
     a,b 1
     e  	3
     """
-    @test _csvread(s, spacedelim=true) == ((["a,b", "e"],[1,3]), ["x,y","z"])
+    @test _csvread(s, spacedelim=true) == ((["a,b", "e"], [1,3]), ["x,y","z"])
 end
 
 @testset "skipfield" begin
@@ -691,35 +691,35 @@ end
     4,5.2,"Sally"
     """
 
-    @test _csvread(str1, colparsers=Dict(1=>nothing)) == (([2.1,5.2], ["John", "Sally"]), String["y","z"])
-    @test _csvread(str1, colparsers=Dict(2=>nothing)) == (([1,4], ["John", "Sally"]), String["x","z"])
-    @test _csvread(str1, colparsers=Dict(3=>nothing)) == (([1,4], [2.1,5.2]), String["x","y"])
+    @test _csvread(str1, colparsers=Dict(1 => nothing)) == (([2.1,5.2], ["John", "Sally"]), String["y","z"])
+    @test _csvread(str1, colparsers=Dict(2 => nothing)) == (([1,4], ["John", "Sally"]), String["x","z"])
+    @test _csvread(str1, colparsers=Dict(3 => nothing)) == (([1,4], [2.1,5.2]), String["x","y"])
 
-    @test _csvread(str1, colparsers=Dict(1=>nothing,2=>nothing)) == ((["John", "Sally"],), String["z"])
-    @test _csvread(str1, colparsers=Dict(1=>nothing,3=>nothing)) == (([2.1,5.2],), String["y"])
-    @test _csvread(str1, colparsers=Dict(2=>nothing,3=>nothing)) == (([1,4],), String["x"])
+    @test _csvread(str1, colparsers=Dict(1 => nothing, 2 => nothing)) == ((["John", "Sally"],), String["z"])
+    @test _csvread(str1, colparsers=Dict(1 => nothing, 3 => nothing)) == (([2.1,5.2],), String["y"])
+    @test _csvread(str1, colparsers=Dict(2 => nothing, 3 => nothing)) == (([1,4],), String["x"])
 
-    @test _csvread(str1, colparsers=Dict(1=>nothing,2=>nothing,3=>nothing)) == ((), String[])
+    @test _csvread(str1, colparsers=Dict(1 => nothing, 2 => nothing, 3 => nothing)) == ((), String[])
 end
 
-import TextParse: eatwhitespaces
+import TextParse:eatwhitespaces
 @testset "custom parser" begin
     floatparser = Numeric(Float64)
     percentparser = CustomParser(Float64) do str, i, len, opts
-        num, ii = tryparsenext(floatparser, str, i, len, opts)
-        if num === nothing
-            return num, ii
-        else
+    num, ii = tryparsenext(floatparser, str, i, len, opts)
+    if num === nothing
+        return num, ii
+    else
             # parse away the % char
-            ii = eatwhitespaces(str, ii, len)
-            c, k = iterate(str, ii)
-            if c != '%'
-                return Nullable{Float64}(), ii # failed to parse %
-            else
-                return num, k # the point after %
-            end
+        ii = eatwhitespaces(str, ii, len)
+        c, k = iterate(str, ii)
+        if c != '%'
+            return Nullable{Float64}(), ii # failed to parse %
+        else
+            return num, k # the point after %
         end
     end
+end
 
     @test tryparsenext(percentparser, "10%")  |> unwrap == (10.0, 4)
     @test tryparsenext(percentparser, "10.32 %") |> unwrap == (10.32, 8)
@@ -728,17 +728,17 @@ end
 
 @testset "read gzipped files" begin
     fn   = joinpath(@__DIR__, "data", "a.csv")
-    fngz = fn*".gz"
+    fngz = fn * ".gz"
     open(fn, "r") do ior
-        open(GzipCompressorStream, fngz, "w") do iow
-            write(iow, ior)
-        end
+    open(GzipCompressorStream, fngz, "w") do iow
+        write(iow, ior)
     end
+end
     @test csvread(fn)   == csvread(fngz)
     @test csvread([fn]) == csvread([fngz])
     if isfile(fngz)
-        rm(fngz)
-    end
+    rm(fngz)
+end
 end
 
 include("test_vectorbackedstrings.jl")
